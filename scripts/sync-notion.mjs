@@ -303,10 +303,13 @@ const main = async () => {
 
     await cleanupOrphans(syncedSlugs, stats);
 
-    if (stats.created || stats.updated || stats.removed) {
+    const changed = stats.created + stats.updated + stats.removed > 0;
+    if (changed) {
         console.log(
             `✨ 新增 ${stats.created} / 更新 ${stats.updated} / 未變動 ${stats.skipped} / 移除 ${stats.removed}`,
         );
+        // 放 marker file,讓 deploy script 知道要 rebuild
+        await writeFile(path.join(ROOT, ".needs-build"), new Date().toISOString(), "utf-8");
     } else if (stats.skipped > 0) {
         console.log(`💤 沒有變動(${stats.skipped} 篇已是最新)`);
     } else {
