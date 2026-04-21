@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Notion sync every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Unit=jamessu-site-deploy.service
+
+[Install]
+WantedBy=timers.target

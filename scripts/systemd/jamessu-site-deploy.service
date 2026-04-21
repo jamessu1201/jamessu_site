@@ -1,0 +1,10 @@
+[Unit]
+Description=Sync Notion + rebuild Fuwari site
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/jamessu_site
+ExecStart=/srv/jamessu_site/scripts/deploy.sh
+StandardOutput=journal
+StandardError=journal
