@@ -1,0 +1,189 @@
+---
+import Hero from "../components/Hero.astro";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+type Project = {
+    name: string;
+    period: string;
+    tags: string[];
+    description: string;
+    href?: string;
+};
+
+const projects: Project[] = [
+    {
+        name: "LLM Commander",
+        period: "2025.09 – Present · NYCU PAIRLabs",
+        tags: ["QLoRA", "Gemma 3", "faster-whisper", "MAVLink", "Tailscale"],
+        description:
+            "離線中文語音轉無人機控制端對端系統。用 QLoRA 微調 Gemma 3 把自然語言轉成 MAVLink JSON,透過 11 輪資料工程把 1B 模型準確率從 50% 推到 89.5%。",
+    },
+    {
+        name: "Motorcycle Voice Assistant",
+        period: "2025 · Personal",
+        tags: ["Kotlin", "FastAPI", "Whisper", "Porcupine", "Ollama"],
+        description:
+            "行車中免持聲控播歌的 Android 語音助手,解決 Google 助理無法直接啟動 Spotify 的痛點。Porcupine 喚醒 + 動態 VAD + Tailscale 連遠端 Whisper/Ollama。",
+    },
+    {
+        name: "Pose Recognition Fitness Coach",
+        period: "2024 · CCU Capstone",
+        tags: ["Flask", "MediaPipe", "DTW", "Docker Compose"],
+        description:
+            "即時姿態辨識健身教練系統,用 BlazePose 算 8 組關節角度 + DTW 比對動作不受速度影響。Docker Compose 容器化 5 個服務,含 JWT + Redis Session。",
+    },
+];
+---
+
+<MainGridLayout>
+    <Hero />
+
+    <section class="card-base featured-card mb-4 onload-animation">
+        <div class="featured-head">
+            <h2>Featured Projects</h2>
+            <a href="/resume/" class="see-all">See all in resume →</a>
+        </div>
+        <div class="featured-grid">
+            {projects.map(p => (
+                <article class="project-card">
+                    <header>
+                        <h3>{p.name}</h3>
+                        <p class="project-period">{p.period}</p>
+                    </header>
+                    <p class="project-desc">{p.description}</p>
+                    <ul class="project-tags">
+                        {p.tags.map(t => <li>{t}</li>)}
+                    </ul>
+                </article>
+            ))}
+        </div>
+    </section>
+
+    <section class="card-base blog-cta mb-4 onload-animation">
+        <div>
+            <h2>Writing</h2>
+            <p>技術筆記、self-hosting 紀錄、研究心得。</p>
+        </div>
+        <a href="/archive/" class="cta-btn">Browse all posts →</a>
+    </section>
+</MainGridLayout>
+
+<style is:global>
+    .featured-card {
+        padding: 1.75rem 2rem;
+    }
+    .featured-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .featured-head h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-strong);
+        margin: 0;
+    }
+    .see-all {
+        font-size: 0.875rem;
+        color: var(--primary);
+        text-decoration: none;
+    }
+    .see-all:hover { text-decoration: underline; }
+
+    .featured-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+    .project-card {
+        padding: 1rem 1.1rem;
+        border-radius: 0.75rem;
+        background: var(--btn-regular-bg);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition: background 0.15s, transform 0.15s;
+        overflow: hidden;
+    }
+    .project-card::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--primary);
+        opacity: 0;
+        transition: opacity 0.15s;
+    }
+    .project-card:hover {
+        background: var(--btn-regular-bg-hover);
+        transform: translateY(-2px);
+    }
+    .project-card:hover::before { opacity: 1; }
+    .project-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-strong);
+        margin: 0;
+    }
+    .project-period {
+        font-size: 0.8rem;
+        color: var(--text-subtle);
+        margin: 0.2rem 0 0;
+    }
+    .project-desc {
+        font-size: 0.9rem;
+        color: var(--primary);
+        line-height: 1.55;
+        margin: 0;
+    }
+    .project-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.25rem 0 0;
+    }
+    .project-tags li {
+        font-size: 0.72rem;
+        padding: 0.15rem 0.6rem;
+        border-radius: 9999px;
+        background: transparent;
+        border: 1px solid var(--line-color);
+        color: var(--btn-content);
+    }
+
+    .blog-cta {
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .blog-cta h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-strong);
+        margin: 0;
+    }
+    .blog-cta p {
+        font-size: 0.9rem;
+        color: var(--text-subtle);
+        margin: 0.2rem 0 0;
+    }
+    .cta-btn {
+        padding: 0.55rem 1.1rem;
+        border-radius: 9999px;
+        background: var(--primary);
+        color: white;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: filter 0.15s;
+    }
+    .cta-btn:hover { filter: brightness(1.1); }
+</style>

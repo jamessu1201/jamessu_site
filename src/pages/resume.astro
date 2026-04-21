@@ -1,0 +1,365 @@
+---
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="Resume / 簡歷" description="蘇靖淵 Ching-Yuan Su — Resume">
+    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+        <div class="card-base z-10 px-9 py-6 relative w-full">
+            <div class="resume-root">
+                <header class="resume-header">
+                    <div class="resume-title">
+                        <h1 class="zh-only">蘇靖淵</h1>
+                        <h1 class="en-only">Ching-Yuan Su</h1>
+                        <p class="resume-meta">
+                            <a href="mailto:joan3825ms55@gmail.com">joan3825ms55@gmail.com</a>
+                            <span>·</span>
+                            <span>+886-981-714-876</span>
+                            <span>·</span>
+                            <a href="https://github.com/jamessu1201" target="_blank" rel="noopener">github.com/jamessu1201</a>
+                            <span>·</span>
+                            <span class="zh-only">新竹</span>
+                            <span class="en-only">Hsinchu, Taiwan</span>
+                        </p>
+                    </div>
+
+                    <div class="resume-toolbar">
+                        <div class="lang-switch" role="tablist" aria-label="Language">
+                            <button type="button" data-lang="zh" class="active" aria-selected="true">中文</button>
+                            <button type="button" data-lang="en" aria-selected="false">English</button>
+                        </div>
+                        <a class="pdf-link" href="/resume/jamessu_zh.pdf" target="_blank" rel="noopener" data-pdf-zh>📄 PDF</a>
+                        <a class="pdf-link hidden" href="/resume/jamessu_en.pdf" target="_blank" rel="noopener" data-pdf-en>📄 PDF</a>
+                    </div>
+                </header>
+
+                <!-- =============== 中文版 =============== -->
+                <section data-lang-section="zh" class="resume-body">
+                    <h2>學歷</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>國立陽明交通大學(NYCU)</strong>
+                                <div class="entry-sub">碩士,智能系統研究所 | PAIRLabs | 指導教授:曾煜棋 | GPA:4.24/4.3</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>2025.09 – 至今</div>
+                                <div>新竹</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>學研計畫:LLM Commander — 離線中文語音轉無人機控制端對端系統</li>
+                        </ul>
+                    </div>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>國立中正大學(CCU)</strong>
+                                <div class="entry-sub">學士,資訊工程學系 | GPA 3.75/4.3 | 多益 855 分</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>2021.09 – 2025.06</div>
+                                <div>嘉義</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>系學生會長(2022–2023):統合各部門運作,管理幹部團隊,主導系迎新等大型活動</li>
+                        </ul>
+                    </div>
+
+                    <h2>技術能力</h2>
+                    <ul class="skills">
+                        <li><strong>程式語言:</strong>Python、Kotlin、JavaScript、PHP、SQL</li>
+                        <li><strong>框架與函式庫:</strong>Flask、FastAPI、Flask-SocketIO、OpenCV、NumPy、Gradio</li>
+                        <li><strong>AI / 機器學習:</strong>MediaPipe、Whisper(faster-whisper)、QLoRA、PEFT、Ollama、Gemma、Hugging Face Transformers</li>
+                        <li><strong>基礎設施:</strong>Docker、Docker Compose、Redis、MariaDB、Git、Tailscale VPN、Cloudflare Tunnel</li>
+                        <li><strong>其他:</strong>MAVLink、Socket.IO、WebSocket</li>
+                    </ul>
+
+                    <h2>研究</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>無人機語音控制與 LLM 決策系統(LLM Commander)</strong>
+                                <div class="entry-sub">人工智慧普適研究中心(PAIRLabs),NYCU</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>2025.09 – 至今</div>
+                                <div>新竹</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>以 QLoRA 微調 Gemma 3(1B/4B),訓練模型將中文自然語言指令轉換為 MAVLink 結構化 JSON;透過 11 輪精準資料工程將 1B 模型準確率從 50% 提升至 89.5%</li>
+                            <li>部署多模式 faster-Whisper ASR 伺服器並設計領域專用術語修正表;透過 Tailscale 將 ASR 推論(RTX 3090)與 LLM 推論(RTX 4090)分散至不同機器,實現完全離線的端對端流程</li>
+                        </ul>
+                    </div>
+
+                    <h2>專案</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>機車語音助手</strong>
+                                <div class="entry-sub">Kotlin (Android), FastAPI, Whisper, Porcupine, Ollama, Spotify API</div>
+                            </div>
+                            <div class="entry-time"><div>2025</div></div>
+                        </div>
+                        <ul>
+                            <li>自行設計並開發完整 Android 語音助手,解決 Google 助理無法直接語音啟動 Spotify 播放的痛點,支援行車中免持聲控播歌與開啟 App</li>
+                            <li>整合 Porcupine 喚醒詞引擎實現低功耗待機、動態 VAD 適應噪音環境,並以 FastAPI Gateway Server 串接遠端 Whisper ASR + Ollama LLM 後端(透過 Tailscale VPN)</li>
+                        </ul>
+                    </div>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>姿態辨識健身教練系統(畢業專題)</strong>
+                                <div class="entry-sub">Flask, MediaPipe, DTW, MariaDB, Docker</div>
+                            </div>
+                            <div class="entry-time"><div>2024</div></div>
+                        </div>
+                        <ul>
+                            <li>主導後端開發,以 MediaPipe BlazePose 即時計算 8 組關節角度,並用動態時間規整(DTW)比對使用者與教練動作,不受動作速度差異影響</li>
+                            <li>以 Docker Compose 容器化 5 個服務(Flask、MariaDB、Redis、RQ Worker、Cloudflare Tunnel),實作 JWT 驗證、bcrypt 密碼雜湊與 Redis Session 管理</li>
+                        </ul>
+                    </div>
+
+                    <h2>經歷</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>網站開發實習生</strong>
+                                <div class="entry-sub">中正大學資訊處/雲嘉區域網路中心(YCRC)</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>2022.09 – 2025.06</div>
+                                <div>嘉義</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>主導網站 WCAG 2.1 無障礙改造,跨 ∼100 個 PHP 檔案重構 CSS 架構(px → rem/em)並實作 ARIA 屬性與鍵盤導覽,使網站通過無障礙標準檢測</li>
+                            <li>獨立開發 PHP 年報管理系統,整合 CKEditor 與 wkhtmltopdf,支援 PDF/HTML/Word 一鍵匯出;同時維護華文哲學百科網站(科技部補助計畫)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- =============== English version =============== -->
+                <section data-lang-section="en" class="resume-body hidden">
+                    <h2>Education</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>National Yang Ming Chiao Tung University (NYCU)</strong>
+                                <div class="entry-sub">M.S., Institute of Intelligent Systems | PAIRLabs | Advisor: Prof. Yu-Chee Tseng | GPA: 4.24/4.3</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>Sep. 2025 – Present</div>
+                                <div>Hsinchu, Taiwan</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>Research: LLM Commander — Offline Chinese voice-to-UAV control system</li>
+                        </ul>
+                    </div>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>National Chung Cheng University (CCU)</strong>
+                                <div class="entry-sub">B.S., Dept. of Computer Science and Information Engineering | GPA 3.75/4.3 | TOEIC 855</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>Sep. 2021 – Jun. 2025</div>
+                                <div>Chiayi, Taiwan</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>Department Student Association President (2022–2023): Led a team of student officers and directed large-scale department events</li>
+                        </ul>
+                    </div>
+
+                    <h2>Technical Skills</h2>
+                    <ul class="skills">
+                        <li><strong>Languages:</strong> Python, Kotlin, JavaScript, PHP, SQL</li>
+                        <li><strong>Frameworks &amp; Libraries:</strong> Flask, FastAPI, Flask-SocketIO, OpenCV, NumPy, Gradio</li>
+                        <li><strong>AI / ML:</strong> MediaPipe, Whisper (faster-whisper), QLoRA, PEFT, Ollama, Gemma, Hugging Face Transformers</li>
+                        <li><strong>Infrastructure:</strong> Docker, Docker Compose, Redis, MariaDB, Git, Tailscale VPN, Cloudflare Tunnel</li>
+                        <li><strong>Other:</strong> MAVLink, Socket.IO, WebSocket</li>
+                    </ul>
+
+                    <h2>Research</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>UAV Voice Control and LLM Decision System (LLM Commander)</strong>
+                                <div class="entry-sub">Pervasive AI Research Labs (PAIRLabs), NYCU</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>Sep. 2025 – Present</div>
+                                <div>Hsinchu, Taiwan</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>Applied QLoRA to fine-tune Gemma 3 (1B/4B) for translating Chinese natural language into MAVLink structured JSON; drove 1B model accuracy from 50% to 89.5% through 11 rounds of targeted dataset engineering</li>
+                            <li>Deployed a multi-mode faster-Whisper ASR server with domain-specific correction tables; distributed ASR (RTX 3090) and LLM inference (RTX 4090) across machines via Tailscale for a fully offline pipeline</li>
+                        </ul>
+                    </div>
+
+                    <h2>Projects</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>Motorcycle Voice Assistant</strong>
+                                <div class="entry-sub">Kotlin (Android), FastAPI, Whisper, Porcupine, Ollama, Spotify API</div>
+                            </div>
+                            <div class="entry-time"><div>2025</div></div>
+                        </div>
+                        <ul>
+                            <li>Designed and built an end-to-end Android voice assistant enabling hands-free Spotify control and app launching while riding, addressing a gap where Google Assistant could not directly trigger Spotify playback</li>
+                            <li>Implemented Porcupine wake-word detection for low-power standby, dynamic VAD for noisy environments, and a FastAPI Gateway Server connecting to a remote Whisper ASR + Ollama LLM backend via Tailscale VPN</li>
+                        </ul>
+                    </div>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>Pose Recognition Fitness Coach (Capstone Project)</strong>
+                                <div class="entry-sub">Flask, MediaPipe, DTW, MariaDB, Docker</div>
+                            </div>
+                            <div class="entry-time"><div>2024</div></div>
+                        </div>
+                        <ul>
+                            <li>Led backend development of a real-time fitness coaching web app; used MediaPipe BlazePose to compute 8 joint angles per frame and DTW to compare user movements against instructor video regardless of speed differences</li>
+                            <li>Containerized 5 services with Docker Compose (Flask, MariaDB, Redis, RQ Worker, Cloudflare Tunnel); implemented JWT auth, bcrypt password hashing, and Redis-backed session management</li>
+                        </ul>
+                    </div>
+
+                    <h2>Experience</h2>
+                    <div class="entry">
+                        <div class="entry-head">
+                            <div>
+                                <strong>Web Development Intern</strong>
+                                <div class="entry-sub">CCU Computer Center / Yunlin-Chiayi Regional Network Center (YCRC)</div>
+                            </div>
+                            <div class="entry-time">
+                                <div>Sep. 2022 – Jun. 2025</div>
+                                <div>Chiayi, Taiwan</div>
+                            </div>
+                        </div>
+                        <ul>
+                            <li>Led a WCAG 2.1 accessibility overhaul across ∼100 PHP files, refactoring CSS (px → rem/em) and implementing ARIA attributes and keyboard navigation, enabling the site to pass compliance audits</li>
+                            <li>Developed a PHP annual report system with CKEditor and wkhtmltopdf supporting one-click PDF/HTML/Word export; maintained the Encyclopedia of Chinese Philosophy platform (Ministry of Science and Technology funded)</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</MainGridLayout>
+
+<style is:global>
+    .resume-root { color: var(--primary); }
+    .resume-root .hidden { display: none !important; }
+
+    .resume-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--line-divider);
+        margin-bottom: 1.5rem;
+    }
+    .resume-title h1 { font-size: 1.8rem; font-weight: 700; margin: 0 0 0.25rem; color: var(--text-strong); }
+    .resume-meta { font-size: 0.9rem; color: var(--text-subtle); display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .resume-meta a { color: var(--primary); text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color 0.15s; }
+    .resume-meta a:hover { text-decoration-color: currentColor; }
+
+    .resume-toolbar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .lang-switch { display: inline-flex; background: var(--btn-regular-bg); border-radius: 9999px; padding: 0.25rem; }
+    .lang-switch button {
+        border: none;
+        background: transparent;
+        padding: 0.35rem 0.9rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        color: var(--text-subtle);
+        transition: all 0.15s;
+    }
+    .lang-switch button.active { background: var(--primary); color: white; }
+    .pdf-link {
+        font-size: 0.875rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        background: var(--btn-regular-bg);
+        color: var(--text-subtle);
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .pdf-link:hover { background: var(--btn-regular-bg-hover); }
+
+    .resume-body h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.75rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid var(--line-divider);
+        color: var(--text-strong);
+    }
+    .resume-body h2:first-child { margin-top: 0; }
+
+    .resume-body .entry { margin-bottom: 1rem; }
+    .resume-body .entry-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: baseline;
+        flex-wrap: wrap;
+    }
+    .resume-body .entry-head strong { color: var(--text-strong); font-size: 1rem; }
+    .resume-body .entry-sub { font-size: 0.875rem; color: var(--text-subtle); margin-top: 0.1rem; }
+    .resume-body .entry-time { text-align: right; font-size: 0.85rem; color: var(--text-subtle); white-space: nowrap; }
+
+    .resume-body ul {
+        list-style: disc;
+        padding-left: 1.25rem;
+        margin: 0.4rem 0 0.5rem;
+        font-size: 0.925rem;
+        line-height: 1.55;
+    }
+    .resume-body ul.skills { margin-top: 0; }
+    .resume-body ul li { margin: 0.2rem 0; }
+    .resume-body ul li strong { color: var(--text-strong); }
+</style>
+
+<script>
+    function setResumeLang(lang: "zh" | "en") {
+        document.querySelectorAll<HTMLElement>("[data-lang-section]").forEach(el => {
+            el.classList.toggle("hidden", el.dataset.langSection !== lang);
+        });
+        document.querySelectorAll<HTMLElement>(".zh-only").forEach(el => {
+            el.classList.toggle("hidden", lang !== "zh");
+        });
+        document.querySelectorAll<HTMLElement>(".en-only").forEach(el => {
+            el.classList.toggle("hidden", lang !== "en");
+        });
+        document.querySelectorAll<HTMLButtonElement>(".lang-switch button").forEach(btn => {
+            const active = btn.dataset.lang === lang;
+            btn.classList.toggle("active", active);
+            btn.setAttribute("aria-selected", String(active));
+        });
+        const zhPdf = document.querySelector<HTMLElement>("[data-pdf-zh]");
+        const enPdf = document.querySelector<HTMLElement>("[data-pdf-en]");
+        zhPdf?.classList.toggle("hidden", lang !== "zh");
+        enPdf?.classList.toggle("hidden", lang !== "en");
+    }
+
+    function initResume() {
+        document.querySelectorAll<HTMLButtonElement>(".lang-switch button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const lang = btn.dataset.lang as "zh" | "en";
+                setResumeLang(lang);
+            });
+        });
+    }
+
+    initResume();
+    document.addEventListener("swup:page:view", initResume);
+</script>

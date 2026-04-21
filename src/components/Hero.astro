@@ -1,0 +1,80 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<section class="card-base hero-card mb-4 onload-animation">
+    <div class="hero-text">
+        <p class="hero-greeting">Hi there 👋</p>
+        <h1 class="hero-title">歡迎來到我的小角落</h1>
+        <p class="hero-sub">作品、履歷、還有不定期寫下來的筆記跟踩坑紀錄。</p>
+        <div class="hero-actions">
+            <a href="/about/" class="hero-btn primary">
+                <Icon name="fa6-regular:circle-user" class="icon" />
+                <span>About</span>
+            </a>
+            <a href="/resume/" class="hero-btn">
+                <Icon name="fa6-regular:file-lines" class="icon" />
+                <span>Resume</span>
+            </a>
+            <a href="/archive/" class="hero-btn">
+                <Icon name="fa6-solid:pen-nib" class="icon" />
+                <span>Posts</span>
+            </a>
+            <a href="https://github.com/jamessu1201" target="_blank" rel="noopener" class="hero-btn">
+                <Icon name="fa6-brands:github" class="icon" />
+                <span>GitHub</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style is:global>
+    .hero-card {
+        padding: 2rem 2.25rem;
+    }
+    .hero-text { width: 100%; }
+    .hero-greeting {
+        color: var(--text-subtle);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+    .hero-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-strong);
+        margin: 0.2rem 0 0.6rem;
+        line-height: 1.25;
+    }
+    .hero-sub {
+        color: var(--primary);
+        font-size: 1rem;
+        margin: 0 0 1.1rem;
+        line-height: 1.5;
+    }
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .hero-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 9999px;
+        background: var(--btn-regular-bg);
+        color: var(--btn-content);
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+    .hero-btn:hover { background: var(--btn-regular-bg-hover); }
+    .hero-btn.primary { background: var(--primary); color: white; }
+    .hero-btn.primary:hover { filter: brightness(1.1); }
+    .hero-btn .icon { width: 1rem; height: 1rem; }
+
+    @media (max-width: 640px) {
+        .hero-card { padding: 1.5rem 1.25rem; }
+        .hero-title { font-size: 1.4rem; }
+    }
+</style>

@@ -120,6 +120,18 @@
     background-color: var(--selection-bg)
 }
 
+/* Theme-aware text colors for custom pages (Hero / index / resume).
+   Unlike --deep-text (single value) and --meta-divider (translucent),
+   these switch properly between light/dark and meet WCAG AA contrast. */
+:root {
+    --text-strong: oklch(0.22 0.02 var(--hue));
+    --text-subtle: oklch(0.42 0.04 var(--hue));
+}
+:root.dark {
+    --text-strong: oklch(0.95 0.01 var(--hue));
+    --text-subtle: oklch(0.83 0.04 var(--hue));
+}
+
 .dash-line {
     position: relative;
 }
