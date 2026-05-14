@@ -16,9 +16,10 @@ pnpm sync
 # 有 marker 才 rebuild
 if [ -f "$ROOT/.needs-build" ]; then
     echo "[deploy] content changed, rebuilding..."
-    # 清掉舊 dist,避免「源檔被刪但 dist 仍有舊產物」的 orphan 狀況
-    # (例:把 Notion 文章改成 Draft 後,sync 刪 .md,但 dist/posts/<slug>/ 不會被 astro build 覆寫)
-    rm -rf "$ROOT/dist"
+    # 清掉舊 dist + Astro 5 的 content layer cache。
+    # data-store.json 不會在來源 .md 被刪除時自動 invalidate,
+    # 結果是已下架文章還是會被 [...slug].astro 重新生成。
+    rm -rf "$ROOT/dist" "$ROOT/node_modules/.astro"
     pnpm build
     rm -f "$ROOT/.needs-build"
     echo "[deploy] rebuild complete."
