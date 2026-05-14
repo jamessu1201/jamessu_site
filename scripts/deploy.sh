@@ -16,6 +16,9 @@ pnpm sync
 # 有 marker 才 rebuild
 if [ -f "$ROOT/.needs-build" ]; then
     echo "[deploy] content changed, rebuilding..."
+    # 清掉舊 dist,避免「源檔被刪但 dist 仍有舊產物」的 orphan 狀況
+    # (例:把 Notion 文章改成 Draft 後,sync 刪 .md,但 dist/posts/<slug>/ 不會被 astro build 覆寫)
+    rm -rf "$ROOT/dist"
     pnpm build
     rm -f "$ROOT/.needs-build"
     echo "[deploy] rebuild complete."
