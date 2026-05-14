@@ -31,3 +31,12 @@ yarn.lock
 # ide
 .idea
 *.iml
+
+# Notion-synced content (managed by scripts/sync-notion.mjs)
+# Files starting with underscore are hand-written and stay tracked.
+src/content/posts/*.md
+!src/content/posts/_*.md
+public/images/notion/
+
+# Sync-build marker
+.needs-build
