@@ -13,6 +13,11 @@ rm -f "$ROOT/.needs-build"
 # 同步 Notion
 pnpm sync
 
+# 抓 Proxmox status 快照 (fail-soft,腳本內部會自己處理錯誤寫空 JSON,不會非 0 exit)。
+# 每跑一次就標記要 rebuild,讓 status 變化能反映到頁面 (5 分鐘延遲可接受)。
+pnpm sync:proxmox
+touch "$ROOT/.needs-build"
+
 # 有 marker 才 rebuild
 if [ -f "$ROOT/.needs-build" ]; then
     echo "[deploy] content changed, rebuilding..."

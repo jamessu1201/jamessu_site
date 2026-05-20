@@ -42,6 +42,14 @@ export const navBarConfig: NavBarConfig = {
 			url: "/resume/",
 		},
 		{
+			name: "Homelab",
+			url: "/homelab/",
+		},
+		{
+			name: "Tools",
+			url: "/tools/hash/",
+		},
+		{
 			name: "GitHub",
 			url: "https://github.com/jamessu1201",
 			external: true,

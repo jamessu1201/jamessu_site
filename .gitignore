@@ -40,3 +40,6 @@ public/images/notion/
 
 # Sync-build marker
 .needs-build
+
+# Proxmox status snapshot (managed by scripts/sync-proxmox.mjs)
+src/data/services.generated.json

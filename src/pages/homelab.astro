@@ -1,0 +1,235 @@
+---
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { Icon } from "astro-icon/components";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import {
+    categoryLabels,
+    categoryOrder,
+    services,
+    type Service,
+    type ServiceCategory,
+} from "../data/services";
+
+// 讀 sync-proxmox.mjs 寫出的 status 快照。檔案可能不存在(dev 第一次)或讀取失敗,
+// 都 fallback 成空物件 — 頁面顯示 "unknown" 狀態,不會 crash build。
+type StatusEntry = { status: "running" | "stopped"; name: string; type: "lxc" | "qemu" };
+let statusMap: Record<string, StatusEntry> = {};
+try {
+    const raw = await readFile(
+        path.resolve(process.cwd(), "src/data/services.generated.json"),
+        "utf-8",
+    );
+    statusMap = JSON.parse(raw);
+} catch {
+    // 沒檔案就維持空物件
+}
+
+const grouped: Record<ServiceCategory, Service[]> = {
+    infrastructure: [],
+    monitoring: [],
+    productivity: [],
+    media: [],
+};
+for (const s of services) grouped[s.category].push(s);
+
+const statusOf = (svc: Service): "running" | "stopped" | "unknown" => {
+    if (svc.vmid == null) return "unknown";
+    return statusMap[String(svc.vmid)]?.status ?? "unknown";
+};
+
+const statusLabel: Record<string, string> = {
+    running: "Running",
+    stopped: "Stopped",
+    unknown: "Unknown",
+};
+---
+
+<MainGridLayout title="Homelab" description="蘇靖淵 — Proxmox / Homelab 服務清單">
+    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+        <div class="card-base z-10 px-9 py-6 relative w-full">
+            <header class="homelab-header">
+                <h1>Homelab</h1>
+                <p class="subtitle">
+                    Proxmox 上跑的服務一覽。連結需要 Tailscale 才能開。
+                </p>
+            </header>
+
+            {categoryOrder.map((cat) => {
+                const list = grouped[cat];
+                if (list.length === 0) return null;
+                return (
+                    <section class="category">
+                        <h2>{categoryLabels[cat].zh} · {categoryLabels[cat].en}</h2>
+                        <div class="service-grid">
+                            {list.map((svc) => {
+                                const status = statusOf(svc);
+                                return (
+                                    <a
+                                        class="service-card"
+                                        href={svc.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        data-status={status}
+                                    >
+                                        <div class="service-icon">
+                                            <Icon name={svc.icon} />
+                                        </div>
+                                        <div class="service-body">
+                                            <div class="service-head">
+                                                <span class="service-name">{svc.name}</span>
+                                                <span class={`status-badge status-${status}`}>
+                                                    <span class="status-dot"></span>
+                                                    {statusLabel[status]}
+                                                </span>
+                                            </div>
+                                            <div class="service-desc">{svc.description}</div>
+                                        </div>
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    </section>
+                );
+            })}
+        </div>
+    </div>
+</MainGridLayout>
+
+<style is:global>
+    .homelab-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--line-divider);
+        margin-bottom: 1.5rem;
+    }
+    .homelab-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem;
+        color: var(--text-strong);
+    }
+    .homelab-header .subtitle {
+        font-size: 0.9rem;
+        color: var(--text-subtle);
+        margin: 0;
+    }
+
+    .category {
+        margin-top: 1.5rem;
+    }
+    .category:first-of-type {
+        margin-top: 0;
+    }
+    .category h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin: 0 0 0.75rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid var(--line-divider);
+        color: var(--text-strong);
+    }
+
+    .service-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .service-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.9rem 1rem;
+        border-radius: 0.75rem;
+        background: var(--btn-regular-bg);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .service-card:hover {
+        background: var(--btn-regular-bg-hover);
+        transform: translateY(-2px);
+    }
+
+    .service-icon {
+        flex-shrink: 0;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.5rem;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    .service-icon svg {
+        width: 1.1rem;
+        height: 1.1rem;
+    }
+
+    .service-body {
+        flex: 1;
+        min-width: 0;
+    }
+    .service-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.2rem;
+    }
+    .service-name {
+        font-weight: 600;
+        color: var(--text-strong);
+        font-size: 0.95rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .service-desc {
+        font-size: 0.825rem;
+        color: var(--text-subtle);
+        line-height: 1.4;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+        white-space: nowrap;
+        font-weight: 500;
+    }
+    .status-dot {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background: currentColor;
+    }
+    .status-running {
+        color: oklch(0.55 0.15 145);
+        background: oklch(0.94 0.05 145 / 0.5);
+    }
+    :global(html.dark) .status-running {
+        color: oklch(0.78 0.18 145);
+        background: oklch(0.30 0.08 145 / 0.6);
+    }
+    .status-stopped {
+        color: oklch(0.55 0.18 25);
+        background: oklch(0.94 0.05 25 / 0.5);
+    }
+    :global(html.dark) .status-stopped {
+        color: oklch(0.78 0.18 25);
+        background: oklch(0.30 0.08 25 / 0.6);
+    }
+    .status-unknown {
+        color: var(--text-subtle);
+        background: oklch(0.92 0.01 var(--hue) / 0.5);
+    }
+    :global(html.dark) .status-unknown {
+        background: oklch(0.30 0.01 var(--hue) / 0.5);
+    }
+</style>
