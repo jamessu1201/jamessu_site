@@ -10,10 +10,12 @@
  * 輸出:src/data/services.generated.json
  *   { "<vmid>": { "status": "running" | "stopped", "name": "...", "type": "lxc" | "qemu" } }
  *
- * 設計原則:fail-soft。任何一步失敗都 log warning + 寫空物件(讓頁面 fallback 顯示
- * "unknown"),deploy.sh 不該因為 Proxmox 連不上就整個 build 失敗。
+ * 設計原則:fail-soft。任何一步失敗都 log warning + 寫空物件,不擋 build。
  *
- * 自簽 cert:內網 Proxmox 用 self-signed cert,fetch 要關 cert 驗證。
+ * 為什麼用 node:https 不用 fetch:內網 Proxmox 是自簽 cert。Node 內建 fetch (undici)
+ * 的 cert 繞過選項要靠 undici Dispatcher,而 undici 不是專案的直接 dep。用 https.get
+ * + rejectUnauthorized:false 一行搞定,且 cause/stack 比 fetch 的 "fetch failed"
+ * 通用訊息有用得多。
  */
 
 import { writeFile } from "node:fs/promises";
@@ -39,22 +41,42 @@ if (!PVE_API_URL || !PVE_API_TOKEN || !PVE_NODE) {
 	await writeEmptyAndExit("缺少 PVE_API_URL / PVE_API_TOKEN / PVE_NODE 環境變數");
 }
 
-// 內網自簽 cert,關掉驗證
-const agent = new https.Agent({ rejectUnauthorized: false });
+const getJson = (url) =>
+	new Promise((resolve, reject) => {
+		const req = https.get(
+			url,
+			{
+				headers: { Authorization: `PVEAPIToken=${PVE_API_TOKEN}` },
+				rejectUnauthorized: false, // 內網自簽 cert
+			},
+			(res) => {
+				let body = "";
+				res.setEncoding("utf-8");
+				res.on("data", (chunk) => {
+					body += chunk;
+				});
+				res.on("end", () => {
+					if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
+						reject(new Error(`HTTP ${res.statusCode}: ${body.slice(0, 200)}`));
+						return;
+					}
+					try {
+						resolve(JSON.parse(body));
+					} catch (e) {
+						reject(new Error(`JSON parse failed: ${e.message} (body: ${body.slice(0, 200)})`));
+					}
+				});
+			},
+		);
+		req.on("error", reject);
+		req.setTimeout(10000, () => {
+			req.destroy(new Error("request timeout (10s)"));
+		});
+	});
 
 const fetchPveList = async (kind) => {
 	const url = `${PVE_API_URL}/api2/json/nodes/${PVE_NODE}/${kind}`;
-	const res = await fetch(url, {
-		headers: { Authorization: `PVEAPIToken=${PVE_API_TOKEN}` },
-		// @ts-ignore — Node fetch 接受 dispatcher/agent
-		dispatcher: agent,
-		// 老的 node 版本走 https.Agent;新版會用 dispatcher。兩者擇一生效不影響功能。
-		agent,
-	});
-	if (!res.ok) {
-		throw new Error(`Proxmox API ${kind} 回 ${res.status}: ${await res.text()}`);
-	}
-	const json = await res.json();
+	const json = await getJson(url);
 	return json.data ?? [];
 };
 
