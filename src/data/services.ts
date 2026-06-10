@@ -56,6 +56,14 @@ export const services: Service[] = [
 		icon: "fa6-solid:globe",
 		description: "LXC 100 · Astro 靜態站 + Caddy + Cloudflare Tunnel",
 	},
+	{
+		name: "Dockge",
+		category: "infrastructure",
+		url: "http://192.168.0.232:5001",
+		vmid: 103,
+		icon: "fa6-solid:layer-group",
+		description: "LXC 103 · compose 中央管理 (hub + agents on 101/104/105/106)",
+	},
 
 	// ---------- Monitoring ----------
 	{
