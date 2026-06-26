@@ -139,25 +139,54 @@ const dockgeAgents = Object.entries(statusMap)
     </div>
 
     <script>
-        // 點 agent 列複製位址到剪貼簿,短暫顯示「已複製」。漸進增強:沒 JS 也能手動選取。
+        // 複製文字到剪貼簿。navigator.clipboard 只在 secure context(HTTPS/localhost)有,
+        // 但本頁走 HTTP(Tailscale 內網),所以要退回舊式 execCommand('copy')。
+        function copyText(text: string): Promise<void> {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            }
+            return new Promise((resolve, reject) => {
+                const ta = document.createElement("textarea");
+                ta.value = text;
+                ta.style.position = "fixed";
+                ta.style.top = "0";
+                ta.style.left = "0";
+                ta.style.opacity = "0";
+                document.body.appendChild(ta);
+                ta.focus();
+                ta.select();
+                let ok = false;
+                try {
+                    ok = document.execCommand("copy");
+                } catch {
+                    ok = false;
+                }
+                document.body.removeChild(ta);
+                ok ? resolve() : reject(new Error("execCommand copy failed"));
+            });
+        }
+
+        // 點 agent 列複製位址,短暫顯示「已複製」。漸進增強:沒 JS 也能手動選取。
         document.querySelectorAll<HTMLButtonElement>(".copy-addr").forEach((btn) => {
             btn.addEventListener("click", async () => {
                 const addr = btn.dataset.addr;
                 if (!addr) return;
+                const hint = btn.querySelector(".agent-copy-hint");
+                const prev = hint?.textContent;
                 try {
-                    await navigator.clipboard.writeText(addr);
-                    const hint = btn.querySelector(".agent-copy-hint");
+                    await copyText(addr);
                     if (hint) {
-                        const prev = hint.textContent;
                         hint.textContent = "已複製 ✓";
                         btn.classList.add("copied");
-                        setTimeout(() => {
-                            hint.textContent = prev;
-                            btn.classList.remove("copied");
-                        }, 1200);
                     }
                 } catch {
-                    // clipboard 不可用就算了,使用者仍可手動選取
+                    if (hint) hint.textContent = "複製失敗";
+                }
+                if (hint) {
+                    setTimeout(() => {
+                        hint.textContent = prev ?? "複製";
+                        btn.classList.remove("copied");
+                    }, 1200);
                 }
             });
         });
