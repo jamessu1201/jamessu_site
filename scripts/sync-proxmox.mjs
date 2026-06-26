@@ -8,9 +8,10 @@
  *   PVE_NODE       — 例 pve
  *
  * 輸出:src/data/services.generated.json
- *   { "<vmid>": { "status": "running" | "stopped", "name": "...", "type": "lxc" | "qemu", "ip"?: "192.168.0.x" } }
+ *   { "<vmid>": { "status", "name", "type", "ip"?: "192.168.0.x", "dockge"?: true } }
  *   ip 只對 LXC 補:先讀 config net0 的靜態 ip,dhcp/抓不到且 running 時退而讀 runtime interfaces。
- *   給 /homelab 頁的「Dockge Agents」清單用(位址 = ip:5001),新 LXC build 完自動出現。
+ *   dockge:實際探 ip:5001 有人聽才標 true — /homelab 的「Dockge Agents」清單只列這些,
+ *   避免列出沒裝 Dockge 的 LXC(貼進 Dockge 也連不上)。在哪台裝了 agent 就自動冒出來。
  *
  * 設計原則:fail-soft。任何一步失敗都 log warning + 寫空物件,不擋 build。
  *
@@ -22,6 +23,7 @@
 
 import { writeFile } from "node:fs/promises";
 import https from "node:https";
+import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -119,6 +121,26 @@ const fetchLxcIp = async (vmid, status) => {
 	return null;
 };
 
+// 探 host:port 有沒有人在聽(判斷該 LXC 是否真的跑 Dockge agent)。
+// 短逾時、fail-soft:連不上 / 逾時 / 出錯一律當沒裝。
+const DOCKGE_PORT = 5001;
+const probePort = (host, port, timeoutMs = 1500) =>
+	new Promise((resolve) => {
+		const socket = new net.Socket();
+		let settled = false;
+		const finish = (open) => {
+			if (settled) return;
+			settled = true;
+			socket.destroy();
+			resolve(open);
+		};
+		socket.setTimeout(timeoutMs);
+		socket.once("connect", () => finish(true));
+		socket.once("timeout", () => finish(false));
+		socket.once("error", () => finish(false));
+		socket.connect(port, host);
+	});
+
 const main = async () => {
 	let lxc = [];
 	let qemu = [];
@@ -136,11 +158,16 @@ const main = async () => {
 		out[vm.vmid] = { status: vm.status, name: vm.name, type: "qemu" };
 	}
 
-	// 補每台 LXC 的 IP(平行抓,fail-soft)。給 /homelab 的 Dockge Agents 清單用。
+	// 補每台 LXC 的 IP + 探 :5001(平行,fail-soft)。給 /homelab 的 Dockge Agents 清單用:
+	// 只有實際有 Dockge agent 在聽的才標 dockge=true。
 	await Promise.all(
 		lxc.map(async (ct) => {
 			const ip = await fetchLxcIp(ct.vmid, ct.status);
-			if (ip) out[ct.vmid].ip = ip;
+			if (!ip) return;
+			out[ct.vmid].ip = ip;
+			if (ct.status === "running" && (await probePort(ip, DOCKGE_PORT))) {
+				out[ct.vmid].dockge = true;
+			}
 		}),
 	);
 

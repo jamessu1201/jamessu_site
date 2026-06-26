@@ -18,6 +18,7 @@ type StatusEntry = {
     name: string;
     type: "lxc" | "qemu";
     ip?: string;
+    dockge?: boolean;
 };
 let statusMap: Record<string, StatusEntry> = {};
 try {
@@ -49,11 +50,11 @@ const statusLabel: Record<string, string> = {
     unknown: "Unknown",
 };
 
-// Dockge agents 清單:從 sync-proxmox 抓回的 LXC 自動列出位址(ip:5001),
-// 方便蓋新 LXC 時直接抄去 Dockge「Add Agent」。新 LXC build 完自己會出現。
+// Dockge agents 清單:只列「實際有 Dockge agent 在 :5001 聽」的 LXC(sync 端探過 dockge=true),
+// 方便蓋新 LXC 時直接抄去 Dockge「Add Agent」。在哪台裝了 agent 就自動出現,沒裝的不會誤列。
 const DOCKGE_AGENT_PORT = 5001;
 const dockgeAgents = Object.entries(statusMap)
-    .filter(([, v]) => v.type === "lxc" && Boolean(v.ip))
+    .filter(([, v]) => v.type === "lxc" && Boolean(v.ip) && Boolean(v.dockge))
     .map(([vmid, v]) => ({
         vmid: Number(vmid),
         name: v.name,
@@ -115,7 +116,7 @@ const dockgeAgents = Object.entries(statusMap)
                 <section class="category dockge-agents">
                     <h2>Dockge Agents · 加 Agent 用</h2>
                     <p class="agents-hint">
-                        蓋新 LXC 後,把對應位址貼進 Dockge →「Add Agent」。清單由 Proxmox API 自動產生,新容器會自己出現。點位址即複製。
+                        把位址貼進 Dockge →「Add Agent」。只列出實際有 Dockge agent 在 :5001 的 LXC(自動偵測),在哪台裝了 agent 就自己出現。點位址即複製。
                     </p>
                     <div class="agents-table">
                         {dockgeAgents.map((a) => (
