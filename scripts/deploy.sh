@@ -10,6 +10,24 @@ ROOT="$(pwd)"
 # 清舊 marker(避免殘留)
 rm -f "$ROOT/.needs-build"
 
+# ---- Pull-based CD:跟 GitHub 同步 ----
+# 部署機完全鏡像 origin/main(reset --hard 不被本地飄移卡住)。push 到 GitHub 後,
+# 下一次 timer(≤5 分鐘)就會自動拉下來 rebuild,不用手動 git pull。
+# 注意:此腳本可能在 reset 時被自己更新 — 影響僅限這一次,下一次 run 跑的就是新版,自癒。
+# git 失敗(GitHub 暫掛/網路)不擋部署:沿用現有程式碼繼續往下跑。
+if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+    if git -C "$ROOT" fetch --quiet origin main; then
+        REMOTE="$(git -C "$ROOT" rev-parse origin/main)"
+        LOCAL="$(git -C "$ROOT" rev-parse HEAD)"
+        if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "[deploy] 偵測到新 commit $REMOTE,同步 origin/main..."
+            git -C "$ROOT" reset --hard "$REMOTE"
+        fi
+    else
+        echo "[deploy] git fetch 失敗,沿用現有版本。"
+    fi
+fi
+
 # 同步 Notion
 pnpm sync
 

@@ -13,7 +13,12 @@ import {
 
 // 讀 sync-proxmox.mjs 寫出的 status 快照。檔案可能不存在(dev 第一次)或讀取失敗,
 // 都 fallback 成空物件 — 頁面顯示 "unknown" 狀態,不會 crash build。
-type StatusEntry = { status: "running" | "stopped"; name: string; type: "lxc" | "qemu" };
+type StatusEntry = {
+    status: "running" | "stopped";
+    name: string;
+    type: "lxc" | "qemu";
+    ip?: string;
+};
 let statusMap: Record<string, StatusEntry> = {};
 try {
     const raw = await readFile(
@@ -43,6 +48,19 @@ const statusLabel: Record<string, string> = {
     stopped: "Stopped",
     unknown: "Unknown",
 };
+
+// Dockge agents 清單:從 sync-proxmox 抓回的 LXC 自動列出位址(ip:5001),
+// 方便蓋新 LXC 時直接抄去 Dockge「Add Agent」。新 LXC build 完自己會出現。
+const DOCKGE_AGENT_PORT = 5001;
+const dockgeAgents = Object.entries(statusMap)
+    .filter(([, v]) => v.type === "lxc" && Boolean(v.ip))
+    .map(([vmid, v]) => ({
+        vmid: Number(vmid),
+        name: v.name,
+        addr: `${v.ip}:${DOCKGE_AGENT_PORT}`,
+        status: v.status,
+    }))
+    .sort((a, b) => a.vmid - b.vmid);
 ---
 
 <MainGridLayout title="Homelab" description="蘇靖淵 — Proxmox / Homelab 服務清單">
@@ -92,8 +110,58 @@ const statusLabel: Record<string, string> = {
                     </section>
                 );
             })}
+
+            {dockgeAgents.length > 0 && (
+                <section class="category dockge-agents">
+                    <h2>Dockge Agents · 加 Agent 用</h2>
+                    <p class="agents-hint">
+                        蓋新 LXC 後,把對應位址貼進 Dockge →「Add Agent」。清單由 Proxmox API 自動產生,新容器會自己出現。點位址即複製。
+                    </p>
+                    <div class="agents-table">
+                        {dockgeAgents.map((a) => (
+                            <button
+                                type="button"
+                                class="agent-row copy-addr"
+                                data-addr={a.addr}
+                                data-status={a.status}
+                                title="點擊複製位址"
+                            >
+                                <span class="agent-vmid">{a.vmid}</span>
+                                <span class="agent-name">{a.name}</span>
+                                <code class="agent-addr">{a.addr}</code>
+                                <span class="agent-copy-hint">複製</span>
+                            </button>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
     </div>
+
+    <script>
+        // 點 agent 列複製位址到剪貼簿,短暫顯示「已複製」。漸進增強:沒 JS 也能手動選取。
+        document.querySelectorAll<HTMLButtonElement>(".copy-addr").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+                const addr = btn.dataset.addr;
+                if (!addr) return;
+                try {
+                    await navigator.clipboard.writeText(addr);
+                    const hint = btn.querySelector(".agent-copy-hint");
+                    if (hint) {
+                        const prev = hint.textContent;
+                        hint.textContent = "已複製 ✓";
+                        btn.classList.add("copied");
+                        setTimeout(() => {
+                            hint.textContent = prev;
+                            btn.classList.remove("copied");
+                        }, 1200);
+                    }
+                } catch {
+                    // clipboard 不可用就算了,使用者仍可手動選取
+                }
+            });
+        });
+    </script>
 </MainGridLayout>
 
 <style is:global>
@@ -231,5 +299,74 @@ const statusLabel: Record<string, string> = {
     }
     :global(html.dark) .status-unknown {
         background: oklch(0.30 0.01 var(--hue) / 0.5);
+    }
+
+    /* ---------- Dockge Agents ---------- */
+    .agents-hint {
+        font-size: 0.8rem;
+        color: var(--text-subtle);
+        line-height: 1.5;
+        margin: 0 0 0.75rem;
+    }
+    .agents-table {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .agent-row {
+        display: grid;
+        grid-template-columns: 2.5rem 1fr auto auto;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: none;
+        border-radius: 0.5rem;
+        background: var(--btn-regular-bg);
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.15s ease;
+    }
+    .agent-row:hover {
+        background: var(--btn-regular-bg-hover);
+    }
+    .agent-row.copied {
+        background: oklch(0.94 0.05 145 / 0.5);
+    }
+    :global(html.dark) .agent-row.copied {
+        background: oklch(0.30 0.08 145 / 0.6);
+    }
+    .agent-vmid {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-subtle);
+        font-variant-numeric: tabular-nums;
+    }
+    .agent-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-strong);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .agent-addr {
+        font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--primary);
+        background: transparent;
+        white-space: nowrap;
+    }
+    .agent-copy-hint {
+        font-size: 0.68rem;
+        color: var(--text-subtle);
+        opacity: 0.7;
+        white-space: nowrap;
+    }
+    .agent-row[data-status="stopped"] .agent-name,
+    .agent-row[data-status="stopped"] .agent-addr {
+        opacity: 0.5;
     }
 </style>
