@@ -44,6 +44,9 @@ export const navBarConfig: NavBarConfig = {
 		{
 			name: "Homelab",
 			url: "/homelab/",
+			// 內容只在 Tailscale 內網(CF 會把 /homelab/ 302 到 http://192.168.0.227/),
+			// 用新分頁開啟,避免離開公網域名後卡在內網 IP 回不去 + 避開 Swup 跨網域轉場
+			external: true,
 		},
 		{
 			name: "Tools",
