@@ -64,6 +64,14 @@ export const services: Service[] = [
 		icon: "fa6-solid:layer-group",
 		description: "LXC 103 · compose 中央管理 (hub + agents on 101/104/105/106)",
 	},
+	{
+		name: "Home Assistant",
+		category: "infrastructure",
+		url: "http://192.168.0.236:8123",
+		vmid: 107,
+		icon: "fa6-solid:house-signal",
+		description: "LXC 107 · 智慧家庭 / room-presence 存在感測",
+	},
 
 	// ---------- Monitoring ----------
 	{
@@ -117,5 +125,13 @@ export const services: Service[] = [
 		vmid: 105,
 		icon: "fa6-solid:cloud-arrow-down",
 		description: "LXC 105 · IG/X/TikTok 等 22 平台下載 API",
+	},
+	{
+		name: "Jellyfin",
+		category: "media",
+		url: "http://192.168.0.239:8096",
+		vmid: 110,
+		icon: "fa6-solid:film",
+		description: "LXC 110 · 自架影音串流 (含 rmvb 即時轉檔)",
 	},
 ];
